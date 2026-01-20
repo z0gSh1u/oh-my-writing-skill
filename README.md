@@ -1,10 +1,11 @@
 # oh-my-writing-skill
 
 <p align="center">
-  <img src="demo.png" width="400" height="auto"/>
+  <img src="hero.png" width="420" height="auto"/>
+</p>
 
 <p align="center">
-  基于 Claude Agent Skills 构建的智能内容创作助手，支持自动化研究、配图、写作和多平台格式转换。
+  基于 Claude Agent Skills 构建的智能内容创作助手，支持用户需求澄清、深度研究、配图、AI 痕迹优化、多平台风格等功能，一键生成高质量文章。
 </p>
 
 ## 功能特性
@@ -65,38 +66,55 @@ pip install -r requirements.txt
 ## 工作流程
 
 ```mermaid
-graph TD
-    A[用户需求] --> B[需求确认]
-    B --> C{需要研究?}
-    C -->|是| D[深度研究<br/>deep-research]
-    C -->|否| E[内容创作<br/>general-writing]
-    D --> E
-    E --> F{需要配图?}
-    F -->|是| G[图片搜索<br/>image-search]
-    F -->|否| I[人性化优化<br/>humanizer-cn]
-    G --> H[图片处理<br/>image-processing]
-    H --> I
-    I --> J{目标平台}
-    J -->|知乎| K[知乎格式转换<br/>zhihu-converter]
-    J -->|小红书| L[小红书格式转换<br/>xiaohongshu-converter]
-    J -->|微信| M[微信格式转换<br/>wechat-converter]
-    K --> N[最终输出]
-    L --> N
-    M --> N
+graph LR
+  User[用户需求] --> Confirm[需求确认]
 
-    style A fill:#e1f5ff
-    style N fill:#e8f5e9
-    style D fill:#fff3e0
-    style G fill:#fff3e0
-    style H fill:#fff3e0
-    style E fill:#fff3e0
-    style I fill:#f3e5f5
-    style K fill:#fce4ec
-    style L fill:#fce4ec
-    style M fill:#fce4ec
+  subgraph Research [资料准备]
+    direction LR
+    Confirm --> CheckResearch{需研究?}
+    CheckResearch -->|是| DeepResearch[深度研究<br/>deep-research]
+    CheckResearch -->|否| Write
+    DeepResearch --> Write
+  end
+
+  subgraph Creation [内容生成]
+    direction LR
+    Write[内容创作<br/>general-writing] --> CheckImg{需配图?}
+    CheckImg -->|是| SearchImg[图片搜索<br/>image-search]
+    CheckImg -->|否| Humanize
+    SearchImg --> ProcessImg[图片处理<br/>image-processing]
+    ProcessImg --> Humanize[人性化优化<br/>humanizer-cn]
+  end
+
+  subgraph Platform [多平台适配]
+    direction TB
+    Humanize --> Target{目标平台}
+    Target -->|知乎| Zhihu[知乎格式<br/>zhihu-converter]
+    Target -->|小红书| RED[小红书格式<br/>xiaohongshu-converter]
+    Target -->|微信| WeChat[微信格式<br/>wechat-converter]
+  end
+
+  Zhihu --> Output[最终输出]
+  RED --> Output
+  WeChat --> Output
+
+  style User fill:#e1f5ff
+  style Output fill:#e8f5e9
+  style DeepResearch fill:#fff3e0
+  style SearchImg fill:#fff3e0
+  style ProcessImg fill:#fff3e0
+  style Write fill:#fff3e0
+  style Humanize fill:#f3e5f5
+  style Zhihu fill:#fce4ec
+  style RED fill:#fce4ec
+  style WeChat fill:#fce4ec
 ```
 
 ## 示例展示
+
+<p align="center">
+  <img src="example.png" width="420" height="auto"/>
+</p>
 
 - ["酱油"一词为什么正在被"生抽"和"老抽"替代？](examples/酱油词汇演变)
 - [把下班后的时间都用来刷手机，对人生对生活究竟有没有影响？](examples/下班后刷手机影响)
@@ -108,6 +126,11 @@ graph TD
 - `humanized.md` - 人性化优化版本
 - `zhihu.md` / `xiaohongshu.md` / `wechat.md` - 平台适配版本
 - `images/` - 配图资源
+
+## 致谢
+
+- [ddgs](https://github.com/deedy5/ddgs)
+- [humanizer](https://github.com/blader/humanizer)
 
 ## License
 
