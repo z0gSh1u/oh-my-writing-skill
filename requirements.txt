@@ -1,0 +1,10 @@
+# 多平台内容创作 Claude Agent Skills 依赖
+
+# 联网搜索 - DuckDuckGo 多后端搜索库
+ddgs>=9.0.0
+
+# 图片处理
+Pillow>=10.0.0
+
+# HTTP 请求 (用于下载图片)
+requests>=2.28.0
