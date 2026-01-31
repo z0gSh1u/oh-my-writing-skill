@@ -2,7 +2,7 @@
 name: deep-research
 description: |
   对给定选题进行联网深度研究，收集整理资料用于后续内容创作。
-  使用 DuckDuckGo 多后端搜索引擎，支持时间过滤、区域设置、多关键词扩展搜索。
+  自动检测可用的网络搜索工具（WebSearch 或 MCP 搜索工具），无可用工具时回退到 DDGS。
   输出结构化的 Markdown 资料汇总，包含来源引用。
 user-invocable: false
 allowed-tools:
@@ -13,12 +13,38 @@ allowed-tools:
   - AskUserQuestion
 metadata:
   author: writing-skill
-  version: '1.0.0'
+  version: '1.2.0'
 ---
 
 # 深度研究 Skill
 
 你是一个专业的研究助手，负责对给定选题进行联网搜索和资料收集。
+
+## 搜索工具自动检测
+
+本 Skill 会自动检测当前环境中可用的网络搜索工具，按以下优先级顺序选择：
+
+1. **Claude 内置 `WebSearch`**：Claude 原生模型的默认搜索工具
+2. **MCP 搜索工具**：自定义模型厂商提供的搜索工具，常见名称如`mcp__minimax__web_search`，或其他包含 `search` 或 `web` 关键词的 MCP 工具
+3. **DDGS 回退**：当以上工具均不可用时，使用 ddgs Python 库
+
+### 检测流程
+
+```
+开始搜索
+    │
+    ├── WebSearch 可用? ──是──▶ 使用 WebSearch
+    │
+    ├── MCP 搜索工具可用? ──是──▶ 使用 MCP 工具
+    │
+    └── 都不可用 ──▶ 回退到 DDGS
+```
+
+| 搜索方式         | 工具                                 | 特点                   |
+| ---------------- | ------------------------------------ | ---------------------- |
+| **WebSearch**    | Claude 内置                          | 搜索质量高、结果更相关 |
+| **MCP 搜索工具** | 厂商提供（如 Brave、Tavily、Exa 等） | 自定义模型的搜索能力   |
+| **DDGS**（回退） | ddgs Python 库                       | 免费、不消耗额度       |
 
 ## 核心能力
 
@@ -29,7 +55,35 @@ metadata:
 
 ## 使用方式
 
-### 步骤 1：运行研究脚本
+### 联网搜索（优先）
+
+当检测到可用的网络搜索工具时，直接使用该工具进行搜索。
+
+**执行步骤：**
+
+1. 检测可用的搜索工具（WebSearch 或 MCP 搜索工具）
+2. 围绕主题生成 3-5 个搜索关键词（主关键词 + 扩展词如"最新"、"评测"、"教程"）
+3. 依次使用搜索工具搜索每个关键词
+4. 整理搜索结果，按 URL 去重
+5. 输出结构化的 Markdown 研究报告（格式见下方"输出格式"章节）
+
+**示例调用：**
+
+```
+# Claude 原生环境
+使用 WebSearch 搜索: "AI 写作工具"
+
+# 自定义模型环境（示例）
+使用 mcp__brave__web_search 搜索: "AI 写作工具"
+```
+
+### DDGS 回退
+
+当没有可用的网络搜索工具时，回退到 ddgs Python 库。
+
+**执行步骤：**
+
+运行研究脚本：
 
 ```bash
 python scripts/research.py "搜索主题" --max_results 20 --timelimit m --region zh-cn
@@ -44,9 +98,9 @@ python scripts/research.py "搜索主题" --max_results 20 --timelimit m --regio
 - `--expand`：是否扩展关键词（默认开启）
 - `--output`：输出文件路径（默认输出到标准输出）
 
-### 步骤 2：整理研究成果
+## 输出格式
 
-脚本会输出结构化的 Markdown 内容，包含：
+无论使用哪种搜索模式，都应输出统一格式的 Markdown 研究报告：
 
 ```markdown
 # 研究报告：[主题]
@@ -54,6 +108,7 @@ python scripts/research.py "搜索主题" --max_results 20 --timelimit m --regio
 ## 搜索概览
 
 - 搜索时间：2026-01-21
+- 搜索模式：WebSearch / DDGS
 - 关键词：主关键词, 扩展关键词1, 扩展关键词2
 - 结果数量：XX 条
 
@@ -131,7 +186,16 @@ Anthropic 于 2025 年发布了 Claude 3.5 Sonnet，在代码生成和长文本�
 
 ## 注意事项
 
+### 联网搜索（WebSearch / MCP）
+
+1. **额度消耗**：每次搜索可能消耗额度（取决于具体工具）
+2. **搜索质量**：结果更相关、更准确
+3. **推荐使用**：重要选题、需要高质量资料时
+
+### DDGS 回退
+
 1. **网络要求**：需要能够访问 DuckDuckGo 搜索服务
 2. **速率限制**：避免短时间内大量请求，建议每次搜索间隔 1-2 秒
 3. **结果时效**：搜索结果可能有几小时到几天的延迟
 4. **语言偏好**：中文主题建议使用 `zh-cn` 区域设置
+5. **何时使用**：仅当没有可用的联网搜索工具时自动回退

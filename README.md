@@ -10,7 +10,9 @@
 
 ## 功能特性
 
-- 🔍 **深度研究**：使用 ddgs + DuckDuckGo 获取背景资料，无需 API Key
+- 🔍 **深度研究**：自动检测可用搜索工具
+  - 优先使用 **WebSearch** 或 **MCP 搜索工具**（质量更高）
+  - 无可用工具时自动回退到 **DDGS**（免费）
 - 🖼️ **智能配图**：使用 ddgs + DuckDuckGo 搜索和下载相关图片，无需 API Key
 - ✍️ **内容创作**：生成高质量的 AI 创作内容
 - 🤖 **AI人性化**：优化 AI 生成痕迹，使内容更自然
@@ -62,6 +64,20 @@ pip install -r requirements.txt
 - `content-creator` 是主入口 Skill，需要手动调用（`disable-model-invocation: true`）
 - 8 个子 Skills（deep-research、image-search 等）是后台能力，不会出现在菜单（`user-invocable: false`）
 - Claude 会在 content-creator 内部自动协调这些子 Skills
+
+### 搜索工具自动检测
+
+系统会自动检测当前环境中可用的网络搜索工具：
+
+| 优先级 | 搜索方式         | 说明                                   |
+| ------ | ---------------- | -------------------------------------- |
+| 1      | **WebSearch**    | Claude 原生模型的内置搜索              |
+| 2      | **MCP 搜索工具** | 自定义模型厂商提供（如 Brave、Tavily） |
+| 3      | **DDGS**（回退） | 无可用工具时使用 DuckDuckGo            |
+
+### 推荐模型
+
+本项目与 **GLM-4.7** 配合良好。不过 GLM-4.7 内置的 WebSearch 有月度调用上限，如需更多搜索次数，可在提示词中指明切换到 MiniMax 的 MCP 搜索工具。
 
 ## 工作流程
 

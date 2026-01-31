@@ -32,7 +32,20 @@ allowed-tools:
 
 ### 阶段 2：深度研究
 
-使用 deep-research Skill 的脚本进行联网搜索：
+自动检测可用的网络搜索工具并执行研究：
+
+#### 联网搜索（优先）
+
+当检测到可用的搜索工具时（WebSearch 或 MCP 搜索工具）：
+
+1. 围绕选题生成 3-5 个搜索关键词
+2. 依次使用搜索工具搜索每个关键词
+3. 整理结果，按 URL 去重
+4. 输出结构化研究报告到 `output/research.md`
+
+#### DDGS 回退
+
+当没有可用的联网搜索工具时，使用 deep-research Skill 的 Python 脚本：
 
 ```bash
 python .claude/skills/deep-research/scripts/research.py "{选题}" \

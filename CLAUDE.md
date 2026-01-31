@@ -63,13 +63,27 @@ python .claude/skills/image-processing/scripts/image_processor.py input.jpg outp
 
 The `content-creator` agent (`.claude/agents/content-creator.md`) orchestrates the 7-stage workflow:
 
-1. **Requirement confirmation** - Uses `AskUserQuestion` to confirm stance, audience, style, platform targets
-2. **Deep research** - `deep-research` skill with DuckDuckGo multi-keyword search
+1. **Requirement confirmation** - Uses `AskUserQuestion` to confirm stance, audience, style, platform targets, and **search mode**
+2. **Deep research** - `deep-research` skill with dual search mode support (see below)
 3. **Image sourcing** - `image-search` skill with filtering (size, color, license)
 4. **Image processing** - `image-processing` skill for adding captions
 5. **Content creation** - `general-writing` skill produces platform-agnostic "middle format" article
 6. **AI-trace removal** - `humanizer-cn` skill eliminates 22+ AI writing patterns
 7. **Platform conversion** - `zhihu-converter`, `xiaohongshu-converter`, or `wechat-converter`
+
+### Search Modes
+
+The `deep-research` skill automatically detects available search tools:
+
+1. **WebSearch** - Claude's built-in search tool (native models)
+2. **MCP Search Tools** - Vendor-provided search tools (e.g., `mcp__brave__web_search`, `mcp__tavily__search`)
+3. **DDGS Fallback** - Uses ddgs Python library when no web search tool is available
+
+| Search Method       | Tool                                  | Characteristics                |
+| ------------------- | ------------------------------------- | ------------------------------ |
+| **WebSearch**       | Claude built-in                       | High quality, most relevant    |
+| **MCP Search**      | Vendor-provided (Brave, Tavily, etc.) | Custom model search capability |
+| **DDGS** (fallback) | ddgs Python library                   | Free, no quota consumption     |
 
 ### Skill Structure
 
@@ -128,11 +142,13 @@ output/{日期}_{选题}/
 
 ### Dependencies
 
-| Package              | Purpose                          |
-| -------------------- | -------------------------------- |
-| `ddgs` >= 9.0.0      | DuckDuckGo search API            |
-| `Pillow` >= 10.0.0   | Image processing                 |
-| `requests` >= 2.28.0 | HTTP requests for image download |
+| Package              | Purpose                           |
+| -------------------- | --------------------------------- |
+| `ddgs` >= 9.0.0      | DuckDuckGo search API (DDGS mode) |
+| `Pillow` >= 10.0.0   | Image processing                  |
+| `requests` >= 2.28.0 | HTTP requests for image download  |
+
+**Note**: WebSearch mode uses Claude's built-in WebSearch tool and requires no additional dependencies, but consumes MCP quota.
 
 ## Working with This Codebase
 
