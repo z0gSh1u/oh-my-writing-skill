@@ -1,3 +1,5 @@
+
+
 # oh-my-writing-skill
 
 <p align="center">
@@ -41,7 +43,7 @@ oh-my-writing-skill/
 1. 克隆项目并进入目录
 
 ```bash
-cd writing-skill
+cd oh-my-writing-skill
 ```
 
 2. 创建、激活虚拟环境并安装依赖
